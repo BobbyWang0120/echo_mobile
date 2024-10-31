@@ -1,5 +1,6 @@
 import React, {useEffect} from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {Text, StyleSheet} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 // SplashScreen组件：展示应用Logo的欢迎页面
 interface SplashScreenProps {
@@ -18,9 +19,9 @@ const SplashScreen: React.FC<SplashScreenProps> = ({onComplete}) => {
   }, [onComplete]);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.logo}>Echo</Text>
-    </View>
+    </SafeAreaView>
   );
 };
 

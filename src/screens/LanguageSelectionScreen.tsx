@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, ScrollView} from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // 支持的语言列表
@@ -35,7 +36,7 @@ const LanguageSelectionScreen: React.FC<LanguageSelectionScreenProps> = ({
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <Text style={styles.title}>请选择您的语言</Text>
       <Text style={styles.subtitle}>Select Your Language</Text>
       <ScrollView style={styles.languageList}>
@@ -57,7 +58,7 @@ const LanguageSelectionScreen: React.FC<LanguageSelectionScreenProps> = ({
           </TouchableOpacity>
         ))}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
