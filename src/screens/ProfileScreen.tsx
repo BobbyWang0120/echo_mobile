@@ -57,7 +57,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   header: {
-    padding: 16,
+    height: 56, // 固定高度，与MeetingsScreen保持一致
+    justifyContent: 'center',
+    paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#EEEEEE',
   },
