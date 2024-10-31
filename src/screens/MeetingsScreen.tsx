@@ -17,6 +17,7 @@ const MOCK_MEETINGS = [
     name: '产品周会',
     lastUpdateTime: '2024-01-20 10:30',
     onlineCount: 8,
+    totalCount: 12,
     isHost: true,
   },
   {
@@ -24,6 +25,7 @@ const MOCK_MEETINGS = [
     name: '技术评审会议',
     lastUpdateTime: '2024-01-19 15:45',
     onlineCount: 12,
+    totalCount: 15,
     isHost: false,
   },
   {
@@ -31,6 +33,7 @@ const MOCK_MEETINGS = [
     name: '项目进度同步',
     lastUpdateTime: '2024-01-19 09:20',
     onlineCount: 5,
+    totalCount: 8,
     isHost: true,
   },
   {
@@ -38,6 +41,7 @@ const MOCK_MEETINGS = [
     name: '团队建设会议',
     lastUpdateTime: '2024-01-18 14:00',
     onlineCount: 15,
+    totalCount: 20,
     isHost: false,
   },
   {
@@ -45,6 +49,7 @@ const MOCK_MEETINGS = [
     name: '客户需求讨论',
     lastUpdateTime: '2024-01-18 11:30',
     onlineCount: 6,
+    totalCount: 10,
     isHost: true,
   },
 ];
@@ -54,11 +59,13 @@ const MeetingItem = ({
   name,
   lastUpdateTime,
   onlineCount,
+  totalCount,
   isHost,
 }: {
   name: string;
   lastUpdateTime: string;
   onlineCount: number;
+  totalCount: number;
   isHost: boolean;
 }) => (
   <TouchableOpacity style={styles.meetingItem}>
@@ -72,9 +79,15 @@ const MeetingItem = ({
     </View>
     <View style={styles.meetingFooter}>
       <Text style={styles.updateTime}>{lastUpdateTime}</Text>
-      <View style={styles.onlineCount}>
-        <Icon name="people" size={16} color="#666666" />
-        <Text style={styles.onlineCountText}>{onlineCount}</Text>
+      <View style={styles.participantsInfo}>
+        <Icon name="people-outline" size={16} color="#666666" />
+        <Text style={styles.participantsText}>
+          <Text style={[styles.participantsCount, {color: '#007AFF'}]}>
+            {onlineCount}
+          </Text>
+          <Text style={styles.participantsSeparator}>/</Text>
+          <Text style={styles.participantsCount}>{totalCount}</Text>
+        </Text>
       </View>
     </View>
   </TouchableOpacity>
@@ -93,7 +106,7 @@ const MeetingsScreen: React.FC = () => {
       // 随机调整在线人数来模拟数据更新
       const updatedMeetings = meetings.map(meeting => ({
         ...meeting,
-        onlineCount: Math.floor(Math.random() * 20) + 1,
+        onlineCount: Math.floor(Math.random() * meeting.totalCount) + 1,
       }));
       setMeetings(updatedMeetings);
       setRefreshing(false);
@@ -113,6 +126,7 @@ const MeetingsScreen: React.FC = () => {
             name={item.name}
             lastUpdateTime={item.lastUpdateTime}
             onlineCount={item.onlineCount}
+            totalCount={item.totalCount}
             isHost={item.isHost}
           />
         )}
@@ -189,14 +203,25 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666666',
   },
-  onlineCount: {
+  participantsInfo: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
   },
-  onlineCountText: {
+  participantsText: {
     marginLeft: 4,
     fontSize: 14,
+  },
+  participantsCount: {
+    fontWeight: '500',
     color: '#666666',
+  },
+  participantsSeparator: {
+    color: '#666666',
+    marginHorizontal: 2,
   },
 });
 
