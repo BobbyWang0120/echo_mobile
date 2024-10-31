@@ -1,117 +1,66 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, {useState, useEffect} from 'react';
+import {SafeAreaView, StatusBar, StyleSheet} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import SplashScreen from './src/screens/SplashScreen';
+import HomeScreen from './src/screens/HomeScreen';
+import LanguageSelectionScreen from './src/screens/LanguageSelectionScreen';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+// App组件：应用的根组件
+const App = () => {
+  // 控制是否显示欢迎页面
+  const [showSplash, setShowSplash] = useState(true);
+  // 控制是否是首次启动
+  const [isFirstLaunch, setIsFirstLaunch] = useState<boolean | null>(null);
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+  // 检查是否是首次启动
+  useEffect(() => {
+    checkFirstLaunch();
+  }, []);
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
-
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const checkFirstLaunch = async () => {
+    try {
+      const value = await AsyncStorage.getItem('isFirstLaunch');
+      // 如果没有isFirstLaunch记录，说明是首次启动
+      setIsFirstLaunch(value === null);
+    } catch (error) {
+      console.error('检查首次启动状态时出错:', error);
+      setIsFirstLaunch(true); // 发生错误时默认为首次启动
+    }
   };
 
+  // 处理欢迎页面完成的回调
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+  };
+
+  // 处理语言选择完成的回调
+  const handleLanguageSelected = () => {
+    setIsFirstLaunch(false);
+  };
+
+  // 如果还在检查是否首次启动，显示启动页面
+  if (isFirstLaunch === null) {
+    return <SplashScreen onComplete={() => {}} />;
+  }
+
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      {showSplash ? (
+        <SplashScreen onComplete={handleSplashComplete} />
+      ) : isFirstLaunch ? (
+        <LanguageSelectionScreen onLanguageSelected={handleLanguageSelected} />
+      ) : (
+        <HomeScreen />
+      )}
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
   },
 });
 
