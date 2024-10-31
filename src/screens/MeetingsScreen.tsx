@@ -25,7 +25,7 @@ const MOCK_MEETINGS = [
     name: '技术评审会议',
     lastUpdateTime: '2024-01-19 15:45',
     onlineCount: 12,
-    totalCount: 15,
+    totalCount: 150,
     isHost: false,
   },
   {
@@ -40,8 +40,8 @@ const MOCK_MEETINGS = [
     id: '4',
     name: '团队建设会议',
     lastUpdateTime: '2024-01-18 14:00',
-    onlineCount: 15,
-    totalCount: 20,
+    onlineCount: 115,
+    totalCount: 120,
     isHost: false,
   },
   {
@@ -53,6 +53,11 @@ const MOCK_MEETINGS = [
     isHost: true,
   },
 ];
+
+// 格式化数字为三位数格式
+const formatNumber = (num: number) => {
+  return num.toString().padStart(3, ' ');
+};
 
 // 会议项目组件
 const MeetingItem = ({
@@ -81,13 +86,13 @@ const MeetingItem = ({
       <Text style={styles.updateTime}>{lastUpdateTime}</Text>
       <View style={styles.participantsInfo}>
         <Icon name="people-outline" size={16} color="#666666" />
-        <Text style={styles.participantsText}>
-          <Text style={[styles.participantsCount, {color: '#007AFF'}]}>
-            {onlineCount}
+        <View style={styles.participantsCount}>
+          <Text style={styles.participantsText}>
+            <Text style={styles.onlineCount}>{formatNumber(onlineCount)}</Text>
+            <Text style={styles.separator}>/</Text>
+            <Text style={styles.totalCount}>{formatNumber(totalCount)}</Text>
           </Text>
-          <Text style={styles.participantsSeparator}>/</Text>
-          <Text style={styles.participantsCount}>{totalCount}</Text>
-        </Text>
+        </View>
       </View>
     </View>
   </TouchableOpacity>
@@ -210,18 +215,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
-  },
-  participantsText: {
-    marginLeft: 4,
-    fontSize: 14,
+    width: 120, // 固定宽度
+    justifyContent: 'flex-end', // 确保内容右对齐
   },
   participantsCount: {
-    fontWeight: '500',
-    color: '#666666',
+    marginLeft: 4,
+    width: 85, // 为三位数字 + 分隔符预留空间
   },
-  participantsSeparator: {
+  participantsText: {
+    fontFamily: 'Menlo', // 使用等宽字体
+    fontSize: 14,
+  },
+  onlineCount: {
+    color: '#007AFF',
+    fontWeight: '500',
+  },
+  separator: {
     color: '#666666',
     marginHorizontal: 2,
+  },
+  totalCount: {
+    color: '#666666',
+    fontWeight: '500',
   },
 });
 
