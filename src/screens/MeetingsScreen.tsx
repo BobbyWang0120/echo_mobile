@@ -17,7 +17,6 @@ const MOCK_MEETINGS = [
     name: '产品周会',
     lastUpdateTime: '2024-01-20 10:30',
     onlineCount: 8,
-    totalCount: 12,
     isHost: true,
   },
   {
@@ -25,7 +24,6 @@ const MOCK_MEETINGS = [
     name: '技术评审会议',
     lastUpdateTime: '2024-01-19 15:45',
     onlineCount: 12,
-    totalCount: 150,
     isHost: false,
   },
   {
@@ -33,15 +31,13 @@ const MOCK_MEETINGS = [
     name: '项目进度同步',
     lastUpdateTime: '2024-01-19 09:20',
     onlineCount: 5,
-    totalCount: 8,
     isHost: true,
   },
   {
     id: '4',
     name: '团队建设会议',
     lastUpdateTime: '2024-01-18 14:00',
-    onlineCount: 115,
-    totalCount: 120,
+    onlineCount: 15,
     isHost: false,
   },
   {
@@ -49,28 +45,20 @@ const MOCK_MEETINGS = [
     name: '客户需求讨论',
     lastUpdateTime: '2024-01-18 11:30',
     onlineCount: 6,
-    totalCount: 10,
     isHost: true,
   },
 ];
-
-// 格式化数字为三位数格式
-const formatNumber = (num: number) => {
-  return num.toString().padStart(3, ' ');
-};
 
 // 会议项目组件
 const MeetingItem = ({
   name,
   lastUpdateTime,
   onlineCount,
-  totalCount,
   isHost,
 }: {
   name: string;
   lastUpdateTime: string;
   onlineCount: number;
-  totalCount: number;
   isHost: boolean;
 }) => (
   <TouchableOpacity style={styles.meetingItem}>
@@ -84,15 +72,9 @@ const MeetingItem = ({
     </View>
     <View style={styles.meetingFooter}>
       <Text style={styles.updateTime}>{lastUpdateTime}</Text>
-      <View style={styles.participantsInfo}>
-        <Icon name="people-outline" size={16} color="#666666" />
-        <View style={styles.participantsCount}>
-          <Text style={styles.participantsText}>
-            <Text style={styles.onlineCount}>{formatNumber(onlineCount)}</Text>
-            <Text style={styles.separator}>/</Text>
-            <Text style={styles.totalCount}>{formatNumber(totalCount)}</Text>
-          </Text>
-        </View>
+      <View style={styles.onlineInfo}>
+        <Icon name="people" size={16} color="#666666" />
+        <Text style={styles.onlineCount}>{onlineCount}</Text>
       </View>
     </View>
   </TouchableOpacity>
@@ -111,7 +93,7 @@ const MeetingsScreen: React.FC = () => {
       // 随机调整在线人数来模拟数据更新
       const updatedMeetings = meetings.map(meeting => ({
         ...meeting,
-        onlineCount: Math.floor(Math.random() * meeting.totalCount) + 1,
+        onlineCount: Math.floor(Math.random() * 20) + 1,
       }));
       setMeetings(updatedMeetings);
       setRefreshing(false);
@@ -131,7 +113,6 @@ const MeetingsScreen: React.FC = () => {
             name={item.name}
             lastUpdateTime={item.lastUpdateTime}
             onlineCount={item.onlineCount}
-            totalCount={item.totalCount}
             isHost={item.isHost}
           />
         )}
@@ -208,33 +189,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666666',
   },
-  participantsInfo: {
+  onlineInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
-    width: 120, // 固定宽度
-    justifyContent: 'flex-end', // 确保内容右对齐
-  },
-  participantsCount: {
-    marginLeft: 4,
-    width: 85, // 为三位数字 + 分隔符预留空间
-  },
-  participantsText: {
-    fontFamily: 'Menlo', // 使用等宽字体
-    fontSize: 14,
   },
   onlineCount: {
-    color: '#007AFF',
-    fontWeight: '500',
-  },
-  separator: {
-    color: '#666666',
-    marginHorizontal: 2,
-  },
-  totalCount: {
+    marginLeft: 4,
+    fontSize: 14,
     color: '#666666',
     fontWeight: '500',
   },
