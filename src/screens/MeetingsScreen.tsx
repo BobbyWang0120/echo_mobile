@@ -9,6 +9,17 @@ import {
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import {
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger,
+} from 'react-native-popup-menu';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+
+type MeetingsScreenProps = {
+  navigation: NativeStackNavigationProp<any>;
+};
 
 // 模拟会议数据
 const MOCK_MEETINGS = [
@@ -81,7 +92,7 @@ const MeetingItem = ({
 );
 
 // 会议列表页面
-const MeetingsScreen: React.FC = () => {
+const MeetingsScreen: React.FC<MeetingsScreenProps> = ({navigation}) => {
   const [refreshing, setRefreshing] = useState(false);
   const [meetings, setMeetings] = useState(MOCK_MEETINGS);
 
@@ -104,7 +115,25 @@ const MeetingsScreen: React.FC = () => {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.title}>会议</Text>
-        <Icon name="add" size={24} color="#000000" style={styles.addIcon} />
+        <Menu>
+          <MenuTrigger>
+            <Icon name="add" size={24} color="#000000" style={styles.addIcon} />
+          </MenuTrigger>
+          <MenuOptions customStyles={menuOptionsStyles}>
+            <MenuOption onSelect={() => navigation.navigate('CreateMeeting')}>
+              <View style={styles.menuItem}>
+                <Icon name="add-circle-outline" size={20} color="#000000" />
+                <Text style={styles.menuText}>创建会议</Text>
+              </View>
+            </MenuOption>
+            <MenuOption>
+              <View style={styles.menuItem}>
+                <Icon name="group-add" size={20} color="#000000" />
+                <Text style={styles.menuText}>加入会议</Text>
+              </View>
+            </MenuOption>
+          </MenuOptions>
+        </Menu>
       </View>
       <FlatList
         data={meetings}
@@ -203,6 +232,36 @@ const styles = StyleSheet.create({
     color: '#666666',
     fontWeight: '500',
   },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+  },
+  menuText: {
+    marginLeft: 8,
+    fontSize: 16,
+    color: '#000000',
+  },
 });
+
+const menuOptionsStyles = {
+  optionsContainer: {
+    width: 140,
+    marginTop: 40,
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  optionWrapper: {
+    padding: 0,
+  },
+};
 
 export default MeetingsScreen;
