@@ -8,6 +8,7 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -71,6 +72,7 @@ const MeetingRoomScreen: React.FC<Props> = ({navigation, route}) => {
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [inputText, setInputText] = useState('');
   const flatListRef = useRef<FlatList>(null);
+  const inputRef = useRef<TextInput>(null);
 
   // 发送消息
   const handleSend = () => {
@@ -94,6 +96,19 @@ const MeetingRoomScreen: React.FC<Props> = ({navigation, route}) => {
     setTimeout(() => {
       flatListRef.current?.scrollToEnd({animated: true});
     }, 100);
+  };
+
+  // 处理键盘显示/隐藏
+  const toggleKeyboard = () => {
+    if (showKeyboard) {
+      Keyboard.dismiss();
+      setShowKeyboard(false);
+    } else {
+      setShowKeyboard(true);
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
   };
 
   return (
@@ -141,18 +156,36 @@ const MeetingRoomScreen: React.FC<Props> = ({navigation, route}) => {
           initialNumToRender={15}
         />
 
-        {/* 底部控制栏 */}
-        <View style={styles.controlBar}>
-          {showKeyboard ? (
+        {/* 底部控制区域 */}
+        <View style={styles.bottomContainer}>
+          {/* 控制按钮栏 */}
+          <View style={styles.controlBar}>
+            <View style={styles.placeholder} />
+            <TouchableOpacity style={styles.micButton}>
+              <Icon name="mic" size={32} color="#FFFFFF" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.keyboardButton}
+              onPress={toggleKeyboard}>
+              <Icon
+                name={showKeyboard ? 'keyboard-hide' : 'keyboard'}
+                size={24}
+                color="#666666"
+              />
+            </TouchableOpacity>
+          </View>
+
+          {/* 输入区域 */}
+          {showKeyboard && (
             <View style={styles.inputContainer}>
               <TextInput
+                ref={inputRef}
                 style={styles.input}
                 value={inputText}
                 onChangeText={setInputText}
                 placeholder="输入消息..."
                 multiline
                 maxLength={500}
-                autoFocus
               />
               <TouchableOpacity
                 style={styles.sendButton}
@@ -163,18 +196,6 @@ const MeetingRoomScreen: React.FC<Props> = ({navigation, route}) => {
                   size={24}
                   color={inputText.trim() ? '#007AFF' : '#999999'}
                 />
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View style={styles.buttonContainer}>
-              <View style={styles.placeholder} />
-              <TouchableOpacity style={styles.micButton}>
-                <Icon name="mic" size={32} color="#FFFFFF" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.keyboardButton}
-                onPress={() => setShowKeyboard(true)}>
-                <Icon name="keyboard" size={24} color="#666666" />
               </TouchableOpacity>
             </View>
           )}
@@ -234,21 +255,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     paddingVertical: 8,
   },
-  controlBar: {
-    minHeight: 64,
-    maxHeight: 120,
+  bottomContainer: {
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#EEEEEE',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    paddingBottom: Platform.OS === 'ios' ? 24 : 8,
   },
-  buttonContainer: {
+  controlBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: 56,
+    height: 72,
+    paddingHorizontal: 16,
+    paddingBottom: Platform.OS === 'ios' ? 8 : 0,
   },
   placeholder: {
     width: 40,
@@ -270,27 +288,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   inputContainer: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-    borderRadius: 20,
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     paddingVertical: 8,
-    minHeight: 40,
-    maxHeight: 100,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 8,
+    backgroundColor: '#F5F5F5',
   },
   input: {
     flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     fontSize: 16,
+    maxHeight: 100,
     color: '#000000',
-    paddingTop: 0,
-    paddingBottom: 0,
-    maxHeight: 80,
   },
   sendButton: {
+    marginLeft: 12,
     padding: 4,
-    marginLeft: 8,
   },
 });
 
