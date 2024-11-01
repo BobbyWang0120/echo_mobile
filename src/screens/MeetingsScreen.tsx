@@ -66,13 +66,15 @@ const MeetingItem = ({
   lastUpdateTime,
   onlineCount,
   isHost,
+  onPress,
 }: {
   name: string;
   lastUpdateTime: string;
   onlineCount: number;
   isHost: boolean;
+  onPress: () => void;
 }) => (
-  <TouchableOpacity style={styles.meetingItem}>
+  <TouchableOpacity style={styles.meetingItem} onPress={onPress}>
     <View style={styles.meetingHeader}>
       <Text style={styles.meetingName}>{name}</Text>
       {isHost && (
@@ -111,6 +113,11 @@ const MeetingsScreen: React.FC<MeetingsScreenProps> = ({navigation}) => {
     }, 1500);
   }, [meetings]);
 
+  // 处理会议项目点击
+  const handleMeetingPress = (meetingName: string) => {
+    navigation.navigate('MeetingRoom', {meetingName});
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
@@ -143,6 +150,7 @@ const MeetingsScreen: React.FC<MeetingsScreenProps> = ({navigation}) => {
             lastUpdateTime={item.lastUpdateTime}
             onlineCount={item.onlineCount}
             isHost={item.isHost}
+            onPress={() => handleMeetingPress(item.name)}
           />
         )}
         keyExtractor={item => item.id}
