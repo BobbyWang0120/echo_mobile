@@ -28,7 +28,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [countryCode, setCountryCode] = useState(COUNTRY_CODES[0].code);
   const [showCountryPicker, setShowCountryPicker] = useState(false);
-  const [countdown, setCountdown] = useState(0);
   const insets = useSafeAreaInsets();
 
   // 处理发送验证码
@@ -37,16 +36,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
       Alert.alert('提示', '请输入正确的手机号');
       return;
     }
-    setCountdown(60);
-    const timer = setInterval(() => {
-      setCountdown(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    // 导航到验证码页面
+    navigation.navigate('Verification', {
+      phoneNumber,
+      countryCode,
+    });
   };
 
   // 重置到首次启动状态（仅用于开发调试）
@@ -112,13 +106,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
         )}
 
         {/* 获取验证码按钮 */}
-        <TouchableOpacity
-          style={[styles.codeButton, countdown > 0 && styles.codeButtonDisabled]}
-          onPress={handleSendCode}
-          disabled={countdown > 0}>
-          <Text style={styles.codeButtonText}>
-            {countdown > 0 ? `${countdown}秒后重发` : '获取验证码'}
-          </Text>
+        <TouchableOpacity style={styles.codeButton} onPress={handleSendCode}>
+          <Text style={styles.codeButtonText}>获取验证码</Text>
         </TouchableOpacity>
       </View>
 
@@ -216,9 +205,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
-  },
-  codeButtonDisabled: {
-    backgroundColor: '#CCCCCC',
   },
   codeButtonText: {
     fontSize: 16,

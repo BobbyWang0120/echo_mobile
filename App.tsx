@@ -12,6 +12,7 @@ import {enableScreens} from 'react-native-screens';
 import SplashScreen from './src/screens/SplashScreen';
 import LanguageSelectionScreen from './src/screens/LanguageSelectionScreen';
 import LoginScreen from './src/screens/LoginScreen';
+import VerificationScreen from './src/screens/VerificationScreen';
 import MeetingsScreen from './src/screens/MeetingsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import CreateMeetingScreen from './src/screens/CreateMeetingScreen';
@@ -26,6 +27,10 @@ type RootStackParamList = {
   Splash: undefined;
   LanguageSelection: undefined;
   Login: undefined;
+  Verification: {
+    phoneNumber: string;
+    countryCode: string;
+  };
   Main: undefined;
   CreateMeeting: undefined;
   JoinMeeting: undefined;
@@ -133,7 +138,10 @@ const MainStack = () => {
           )}
         </Stack.Screen>
       ) : !isLoggedIn ? (
-        <Stack.Screen name="Login" component={LoginScreen} />
+        <>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Verification" component={VerificationScreen} />
+        </>
       ) : (
         <>
           <Stack.Screen name="Main" component={MainApp} />
