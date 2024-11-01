@@ -10,6 +10,7 @@ import {
   TextInputKeyPressEventData,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 
@@ -46,6 +47,21 @@ const VerificationScreen: React.FC<Props> = ({navigation, route}) => {
     return () => clearInterval(timer);
   }, []);
 
+  // 处理验证成功
+  const handleVerificationSuccess = async () => {
+    try {
+      // 设置登录状态
+      await AsyncStorage.setItem('isLoggedIn', 'true');
+      // 导航到主页
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'Main'}],
+      });
+    } catch (error) {
+      console.error('保存登录状态时出错:', error);
+    }
+  };
+
   // 处理输入
   const handleCodeChange = (text: string, index: number) => {
     const newCode = [...code];
@@ -60,9 +76,7 @@ const VerificationScreen: React.FC<Props> = ({navigation, route}) => {
     // 检查是否所有验证码都已输入
     if (newCode.every(digit => digit !== '')) {
       // TODO: 实际验证码验证逻辑
-      setTimeout(() => {
-        navigation.replace('Main');
-      }, 500);
+      handleVerificationSuccess();
     }
   };
 
