@@ -119,51 +119,57 @@ const MeetingsScreen: React.FC<MeetingsScreenProps> = ({navigation}) => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <Text style={styles.title}>会议</Text>
-        <Menu>
-          <MenuTrigger>
-            <Icon name="add" size={24} color="#000000" style={styles.addIcon} />
-          </MenuTrigger>
-          <MenuOptions customStyles={menuOptionsStyles}>
-            <MenuOption onSelect={() => navigation.navigate('CreateMeeting')}>
-              <View style={styles.menuItem}>
-                <Icon name="add-circle-outline" size={20} color="#000000" />
-                <Text style={styles.menuText}>创建会议</Text>
-              </View>
-            </MenuOption>
-            <MenuOption onSelect={() => navigation.navigate('JoinMeeting')}>
-              <View style={styles.menuItem}>
-                <Icon name="group-add" size={20} color="#000000" />
-                <Text style={styles.menuText}>加入会议</Text>
-              </View>
-            </MenuOption>
-          </MenuOptions>
-        </Menu>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>会议</Text>
+          <Menu>
+            <MenuTrigger>
+              <Icon name="add" size={24} color="#000000" style={styles.addIcon} />
+            </MenuTrigger>
+            <MenuOptions customStyles={menuOptionsStyles}>
+              <MenuOption onSelect={() => navigation.navigate('CreateMeeting')}>
+                <View style={styles.menuItem}>
+                  <Icon name="add-circle-outline" size={20} color="#000000" />
+                  <Text style={styles.menuText}>创建会议</Text>
+                </View>
+              </MenuOption>
+              <MenuOption onSelect={() => navigation.navigate('JoinMeeting')}>
+                <View style={styles.menuItem}>
+                  <Icon name="group-add" size={20} color="#000000" />
+                  <Text style={styles.menuText}>加入会议</Text>
+                </View>
+              </MenuOption>
+            </MenuOptions>
+          </Menu>
+        </View>
+        <FlatList
+          data={meetings}
+          renderItem={({item}) => (
+            <MeetingItem
+              name={item.name}
+              lastUpdateTime={item.lastUpdateTime}
+              onlineCount={item.onlineCount}
+              isHost={item.isHost}
+              onPress={() => handleMeetingPress(item.name)}
+            />
+          )}
+          keyExtractor={item => item.id}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          contentContainerStyle={styles.listContainer}
+        />
       </View>
-      <FlatList
-        data={meetings}
-        renderItem={({item}) => (
-          <MeetingItem
-            name={item.name}
-            lastUpdateTime={item.lastUpdateTime}
-            onlineCount={item.onlineCount}
-            isHost={item.isHost}
-            onPress={() => handleMeetingPress(item.name)}
-          />
-        )}
-        keyExtractor={item => item.id}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        contentContainerStyle={styles.listContainer}
-      />
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -174,8 +180,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 56,
     paddingHorizontal: 16,
-    borderBottomWidth: 1,
+    borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#EEEEEE',
+    backgroundColor: '#FFFFFF',
+    zIndex: 1, // 确保header在顶部
   },
   title: {
     fontSize: 20,

@@ -112,24 +112,26 @@ const MeetingRoomScreen: React.FC<Props> = ({navigation, route}) => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.container}>
+        style={styles.keyboardView}>
         {/* 顶部信息条 */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.backButton}>
-            <Icon name="arrow-back" size={24} color="#000000" />
-          </TouchableOpacity>
-          <View style={styles.headerInfo}>
-            <Text style={styles.meetingName} numberOfLines={1}>
-              {meetingName}
-            </Text>
-            <View style={styles.participantsInfo}>
-              <Icon name="people" size={16} color="#666666" />
-              <Text style={styles.participantsCount}>12</Text>
+        <View style={styles.headerContainer}>
+          <View style={styles.header}>
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={styles.backButton}>
+              <Icon name="arrow-back" size={24} color="#000000" />
+            </TouchableOpacity>
+            <View style={styles.headerInfo}>
+              <Text style={styles.meetingName} numberOfLines={1}>
+                {meetingName}
+              </Text>
+              <View style={styles.participantsInfo}>
+                <Icon name="people" size={16} color="#666666" />
+                <Text style={styles.participantsCount}>12</Text>
+              </View>
             </View>
           </View>
         </View>
@@ -206,17 +208,24 @@ const MeetingRoomScreen: React.FC<Props> = ({navigation, route}) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+  },
+  keyboardView: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  headerContainer: {
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#EEEEEE',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     height: 56,
     paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
     backgroundColor: '#FFFFFF',
   },
   backButton: {
@@ -257,7 +266,7 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
+    borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#EEEEEE',
   },
   controlBar: {
