@@ -11,6 +11,7 @@ import {enableScreens} from 'react-native-screens';
 
 import SplashScreen from './src/screens/SplashScreen';
 import LanguageSelectionScreen from './src/screens/LanguageSelectionScreen';
+import LoginScreen from './src/screens/LoginScreen';
 import MeetingsScreen from './src/screens/MeetingsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import CreateMeetingScreen from './src/screens/CreateMeetingScreen';
@@ -24,6 +25,7 @@ enableScreens();
 type RootStackParamList = {
   Splash: undefined;
   LanguageSelection: undefined;
+  Login: undefined;
   Main: undefined;
   CreateMeeting: undefined;
   JoinMeeting: undefined;
@@ -73,20 +75,25 @@ const MainApp = () => (
 const MainStack = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [isFirstLaunch, setIsFirstLaunch] = useState<boolean | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
-  // 检查是否是首次启动
+  // 检查是否是首次启动和登录状态
   useEffect(() => {
     checkFirstLaunch();
   }, []);
 
   const checkFirstLaunch = async () => {
     try {
-      const value = await AsyncStorage.getItem('isFirstLaunch');
-      // 如果没有isFirstLaunch记录，说明是首次启动
-      setIsFirstLaunch(value === null);
+      const [firstLaunch, loggedIn] = await Promise.all([
+        AsyncStorage.getItem('isFirstLaunch'),
+        AsyncStorage.getItem('isLoggedIn'),
+      ]);
+      setIsFirstLaunch(firstLaunch === null);
+      setIsLoggedIn(loggedIn === 'true');
     } catch (error) {
-      console.error('检查首次启动状态时出错:', error);
-      setIsFirstLaunch(true); // 发生错误时默认为首次启动
+      console.error('检查启动状态时出错:', error);
+      setIsFirstLaunch(true);
+      setIsLoggedIn(false);
     }
   };
 
@@ -96,8 +103,13 @@ const MainStack = () => {
   };
 
   // 处理语言选择完成的回调
-  const handleLanguageSelected = () => {
-    setIsFirstLaunch(false);
+  const handleLanguageSelected = async () => {
+    try {
+      await AsyncStorage.setItem('isFirstLaunch', 'false');
+      setIsFirstLaunch(false);
+    } catch (error) {
+      console.error('保存首次启动状态时出错:', error);
+    }
   };
 
   // 如果还在检查是否首次启动，显示启动页面
@@ -120,6 +132,8 @@ const MainStack = () => {
             />
           )}
         </Stack.Screen>
+      ) : !isLoggedIn ? (
+        <Stack.Screen name="Login" component={LoginScreen} />
       ) : (
         <>
           <Stack.Screen name="Main" component={MainApp} />
