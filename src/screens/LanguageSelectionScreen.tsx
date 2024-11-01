@@ -1,16 +1,14 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  Animated,
+  FlatList,
   Dimensions,
-  ScrollView,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 
-// 调整语言顺序，简体中文放在第三位
 const LANGUAGES = [
   {code: 'en', name: 'English', confirmText: 'Confirm'},
   {code: 'ja', name: '日本語', confirmText: '確認'},
@@ -21,69 +19,32 @@ const LANGUAGES = [
   {code: 'es', name: 'Español', confirmText: 'Confirmar'},
 ];
 
-const {height} = Dimensions.get('window');
-const VISIBLE_ITEMS = 5; // 显示5个选项
-const ITEM_HEIGHT = Math.floor(height / 8); // 调整每个选项的高度，确保一屏能显示5个
-const DEFAULT_LANGUAGE_INDEX = 2; // 简体中文的索引
+const {height: screenHeight} = Dimensions.get('window');
+const ITEM_HEIGHT = 60;
 
 type Props = {
   onLanguageSelected: (languageCode: string) => void;
 };
 
 const LanguageSelectionScreen: React.FC<Props> = ({onLanguageSelected}) => {
-  const [selectedIndex, setSelectedIndex] = useState(DEFAULT_LANGUAGE_INDEX);
-  const scrollY = new Animated.Value(DEFAULT_LANGUAGE_INDEX * ITEM_HEIGHT);
-  const scrollViewRef = useRef<ScrollView>(null);
+  const [selectedIndex, setSelectedIndex] = useState(2); // 默认选中简体中文
+  const insets = useSafeAreaInsets();
 
-  // 组件加载后滚动到默认语言位置
-  useEffect(() => {
-    setTimeout(() => {
-      scrollViewRef.current?.scrollTo({
-        y: DEFAULT_LANGUAGE_INDEX * ITEM_HEIGHT,
-        animated: false,
-      });
-    }, 0);
-  }, []);
-
-  const renderItem = (item: typeof LANGUAGES[0], index: number) => {
-    const position = Animated.subtract(index * ITEM_HEIGHT, scrollY);
-    const scale = position.interpolate({
-      inputRange: [-ITEM_HEIGHT, 0, ITEM_HEIGHT],
-      outputRange: [0.8, 1.2, 0.8],
-    });
-    const opacity = position.interpolate({
-      inputRange: [-ITEM_HEIGHT, 0, ITEM_HEIGHT],
-      outputRange: [0.3, 1, 0.3],
-    });
-
-    return (
-      <Animated.View
-        key={index}
+  const renderItem = ({item, index}: {item: typeof LANGUAGES[0]; index: number}) => (
+    <TouchableOpacity
+      style={[
+        styles.languageItem,
+        index === selectedIndex && styles.selectedItem,
+      ]}
+      onPress={() => setSelectedIndex(index)}>
+      <Text
         style={[
-          styles.itemContainer,
-          {
-            opacity,
-            transform: [{scale}],
-          },
+          styles.languageText,
+          index === selectedIndex && styles.selectedText,
         ]}>
-        <Text style={[styles.itemText, index === selectedIndex && styles.selectedItemText]}>
-          {item.name}
-        </Text>
-      </Animated.View>
-    );
-  };
-
-  const handleScroll = Animated.event(
-    [{nativeEvent: {contentOffset: {y: scrollY}}}],
-    {
-      useNativeDriver: true,
-      listener: (event: any) => {
-        const index = Math.round(event.nativeEvent.contentOffset.y / ITEM_HEIGHT);
-        if (index !== selectedIndex && index >= 0 && index < LANGUAGES.length) {
-          setSelectedIndex(index);
-        }
-      },
-    },
+        {item.name}
+      </Text>
+    </TouchableOpacity>
   );
 
   const handleConfirm = () => {
@@ -91,38 +52,41 @@ const LanguageSelectionScreen: React.FC<Props> = ({onLanguageSelected}) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* Logo */}
       <View style={styles.logoContainer}>
         <Text style={styles.logoText}>Echo</Text>
       </View>
 
-      {/* 语言选择器 */}
-      <View style={styles.pickerContainer}>
-        <Animated.ScrollView
-          ref={scrollViewRef}
-          showsVerticalScrollIndicator={false}
-          snapToInterval={ITEM_HEIGHT}
-          decelerationRate="fast"
-          scrollEventThrottle={16}
-          onScroll={handleScroll}
-          contentContainerStyle={[
-            styles.scrollContent,
-            {
-              paddingTop: (height - ITEM_HEIGHT * VISIBLE_ITEMS) / 2,
-              paddingBottom: (height - ITEM_HEIGHT * VISIBLE_ITEMS) / 2,
-            },
-          ]}>
-          {LANGUAGES.map((item, index) => renderItem(item, index))}
-        </Animated.ScrollView>
-      </View>
+      {/* 语言列表 */}
+      <FlatList
+        data={LANGUAGES}
+        renderItem={renderItem}
+        keyExtractor={item => item.code}
+        getItemLayout={(_, index) => ({
+          length: ITEM_HEIGHT,
+          offset: ITEM_HEIGHT * index,
+          index,
+        })}
+        initialScrollIndex={selectedIndex - 1}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[
+          styles.listContent,
+          {
+            paddingBottom: insets.bottom + 80,
+            minHeight: screenHeight - 180, // 确保内容可以滚动
+          },
+        ]}
+      />
 
       {/* 确认按钮 */}
-      <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
-        <Text style={styles.confirmText}>
-          {LANGUAGES[selectedIndex].confirmText}
-        </Text>
-      </TouchableOpacity>
+      <View style={[styles.buttonContainer, {paddingBottom: insets.bottom}]}>
+        <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
+          <Text style={styles.confirmText}>
+            {LANGUAGES[selectedIndex].confirmText}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
@@ -142,33 +106,45 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#000000',
   },
-  pickerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  scrollContent: {
+  listContent: {
+    paddingTop: 20,
     paddingHorizontal: 20,
   },
-  itemContainer: {
+  languageItem: {
     height: ITEM_HEIGHT,
     justifyContent: 'center',
     alignItems: 'center',
+    marginVertical: 8,
+    borderRadius: 12,
+    backgroundColor: '#F8F8F8',
   },
-  itemText: {
-    fontSize: 24,
-    color: '#999999',
-    textAlign: 'center',
+  selectedItem: {
+    backgroundColor: '#000000',
   },
-  selectedItemText: {
-    color: '#000000',
+  languageText: {
+    fontSize: 20,
+    color: '#666666',
+  },
+  selectedText: {
+    color: '#FFFFFF',
     fontWeight: '600',
   },
+  buttonContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: '#EEEEEE',
+    paddingTop: 16,
+    paddingHorizontal: 16,
+  },
   confirmButton: {
-    marginHorizontal: 16,
-    marginBottom: 32,
     backgroundColor: '#000000',
     borderRadius: 12,
     paddingVertical: 16,
+    marginBottom: 8,
   },
   confirmText: {
     fontSize: 18,
