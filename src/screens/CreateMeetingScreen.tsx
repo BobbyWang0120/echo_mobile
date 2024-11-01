@@ -28,7 +28,9 @@ const CreateMeetingScreen: React.FC<CreateMeetingScreenProps> = ({
 
     // TODO: 实现创建会议的功能
     console.log('创建会议:', meetingName);
-    navigation.goBack();
+    navigation.replace('MeetingRoom', {
+      meetingName: meetingName.trim(),
+    });
   };
 
   return (

@@ -25,12 +25,9 @@ const JoinMeetingScreen: React.FC<JoinMeetingScreenProps> = ({navigation}) => {
     }
 
     // TODO: 实现加入会议的功能
-    Alert.alert('成功', '已加入会议', [
-      {
-        text: '确定',
-        onPress: () => navigation.goBack(),
-      },
-    ]);
+    navigation.replace('MeetingRoom', {
+      meetingName: '测试会议', // TODO: 从服务器获取会议名称
+    });
   };
 
   // 处理邀请码输入，自动去除空格

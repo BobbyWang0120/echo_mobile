@@ -15,12 +15,25 @@ import MeetingsScreen from './src/screens/MeetingsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import CreateMeetingScreen from './src/screens/CreateMeetingScreen';
 import JoinMeetingScreen from './src/screens/JoinMeetingScreen';
+import MeetingRoomScreen from './src/screens/MeetingRoomScreen';
 
 // 启用screens
 enableScreens();
 
+// 定义导航参数类型
+type RootStackParamList = {
+  Splash: undefined;
+  LanguageSelection: undefined;
+  Main: undefined;
+  CreateMeeting: undefined;
+  JoinMeeting: undefined;
+  MeetingRoom: {
+    meetingName: string;
+  };
+};
+
 const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 // 主应用导航结构
 const MainApp = () => (
@@ -124,6 +137,15 @@ const MainStack = () => {
             options={{
               headerShown: false,
               presentation: 'modal',
+            }}
+          />
+          <Stack.Screen
+            name="MeetingRoom"
+            component={MeetingRoomScreen}
+            options={{
+              headerShown: false,
+              presentation: 'fullScreenModal',
+              animation: 'slide_from_right',
             }}
           />
         </>
