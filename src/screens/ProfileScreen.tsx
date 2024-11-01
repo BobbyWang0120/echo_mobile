@@ -114,7 +114,7 @@ const ProfileScreen: React.FC = () => {
               />
               <View style={styles.editButtons}>
                 <TouchableOpacity
-                  style={styles.editButton}
+                  style={[styles.editButton, styles.cancelButton]}
                   onPress={() => setEditingNickname(false)}>
                   <Text style={styles.editButtonTextCancel}>取消</Text>
                 </TouchableOpacity>
@@ -204,24 +204,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#000000',
     padding: 0,
+    marginBottom: 16,
   },
   editButtons: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    marginTop: 16,
   },
   editButton: {
     marginLeft: 16,
-  },
-  saveButton: {
-    backgroundColor: '#007AFF',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 6,
   },
+  cancelButton: {
+    backgroundColor: '#F5F5F5',
+  },
+  saveButton: {
+    backgroundColor: '#007AFF',
+  },
   editButtonTextCancel: {
     fontSize: 16,
     color: '#666666',
+    fontWeight: '600',
   },
   editButtonTextSave: {
     fontSize: 16,
