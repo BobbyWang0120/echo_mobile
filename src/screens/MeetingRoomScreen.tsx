@@ -1,8 +1,9 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, FlatList} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
+import MessageBubble from '../components/MessageBubble';
 
 type RootStackParamList = {
   MeetingRoom: {
@@ -11,6 +12,45 @@ type RootStackParamList = {
 };
 
 type Props = NativeStackScreenProps<RootStackParamList, 'MeetingRoom'>;
+
+// 模拟消息数据
+const MOCK_MESSAGES = [
+  {
+    id: '1',
+    message: '大家好，会议开始了',
+    senderName: '张三',
+    timestamp: '10:00',
+    isSelf: false,
+  },
+  {
+    id: '2',
+    message: '好的，我们开始讨论第一个议题',
+    senderName: '我',
+    timestamp: '10:01',
+    isSelf: true,
+  },
+  {
+    id: '3',
+    message: '关于新功能的开发进度，目前已经完成了70%',
+    senderName: '李四',
+    timestamp: '10:02',
+    isSelf: false,
+  },
+  {
+    id: '4',
+    message: '预计下周可以完成全部开发工作，然后进入测试阶段',
+    senderName: '李四',
+    timestamp: '10:02',
+    isSelf: false,
+  },
+  {
+    id: '5',
+    message: '测试团队这边已经准备好了，随时可以开始测试',
+    senderName: '我',
+    timestamp: '10:03',
+    isSelf: true,
+  },
+];
 
 const MeetingRoomScreen: React.FC<Props> = ({navigation, route}) => {
   const {meetingName} = route.params;
@@ -36,9 +76,19 @@ const MeetingRoomScreen: React.FC<Props> = ({navigation, route}) => {
       </View>
 
       {/* 中间聊天区域 */}
-      <View style={styles.chatArea}>
-        <Text style={styles.placeholder}>聊天区域</Text>
-      </View>
+      <FlatList
+        data={MOCK_MESSAGES}
+        renderItem={({item}) => (
+          <MessageBubble
+            message={item.message}
+            senderName={item.senderName}
+            timestamp={item.timestamp}
+            isSelf={item.isSelf}
+          />
+        )}
+        keyExtractor={item => item.id}
+        contentContainerStyle={styles.chatArea}
+      />
 
       {/* 底部控制栏 */}
       <View style={styles.controlBar}>
@@ -101,14 +151,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   chatArea: {
-    flex: 1,
-    backgroundColor: '#F8F8F8',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  placeholder: {
-    fontSize: 16,
-    color: '#999999',
+    flexGrow: 1,
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 8,
   },
   controlBar: {
     height: 80,
