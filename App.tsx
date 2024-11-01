@@ -14,6 +14,7 @@ import LanguageSelectionScreen from './src/screens/LanguageSelectionScreen';
 import MeetingsScreen from './src/screens/MeetingsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import CreateMeetingScreen from './src/screens/CreateMeetingScreen';
+import JoinMeetingScreen from './src/screens/JoinMeetingScreen';
 
 // 启用screens
 enableScreens();
@@ -112,6 +113,14 @@ const MainStack = () => {
           <Stack.Screen
             name="CreateMeeting"
             component={CreateMeetingScreen}
+            options={{
+              headerShown: false,
+              presentation: 'modal',
+            }}
+          />
+          <Stack.Screen
+            name="JoinMeeting"
+            component={JoinMeetingScreen}
             options={{
               headerShown: false,
               presentation: 'modal',

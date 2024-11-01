@@ -126,7 +126,7 @@ const MeetingsScreen: React.FC<MeetingsScreenProps> = ({navigation}) => {
                 <Text style={styles.menuText}>创建会议</Text>
               </View>
             </MenuOption>
-            <MenuOption>
+            <MenuOption onSelect={() => navigation.navigate('JoinMeeting')}>
               <View style={styles.menuItem}>
                 <Icon name="group-add" size={20} color="#000000" />
                 <Text style={styles.menuText}>加入会议</Text>
