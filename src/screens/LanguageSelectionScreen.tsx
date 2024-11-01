@@ -1,13 +1,11 @@
-import React, {useState, useRef} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   TextInput,
-  SectionList,
-  Dimensions,
-  SectionListData,
+  FlatList,
 } from 'react-native';
 import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -16,38 +14,25 @@ type Language = {
   code: string;
   name: string;
   confirmText: string;
-  group: string;
 };
 
-type Section = {
-  title: string;
-  data: Language[];
-};
-
-// 扩展语言列表
-const ALL_LANGUAGES: Language[] = [
-  {code: 'ar', name: 'العربية', confirmText: 'تأكيد', group: 'A'},
-  {code: 'bn', name: 'বাংলা', confirmText: 'নিশ্চিত করুন', group: 'B'},
-  {code: 'zh', name: '简体中文', confirmText: '确定', group: 'C'},
-  {code: 'cs', name: 'Čeština', confirmText: 'Potvrdit', group: 'C'},
-  {code: 'nl', name: 'Nederlands', confirmText: 'Bevestigen', group: 'N'},
-  {code: 'en', name: 'English', confirmText: 'Confirm', group: 'E'},
-  {code: 'fr', name: 'Français', confirmText: 'Confirmer', group: 'F'},
-  {code: 'de', name: 'Deutsch', confirmText: 'Bestätigen', group: 'D'},
-  {code: 'el', name: 'Ελληνικά', confirmText: 'Επιβεβαίωση', group: 'E'},
-  {code: 'hi', name: 'हिन्दी', confirmText: 'पुष्टि करें', group: 'H'},
-  {code: 'id', name: 'Bahasa Indonesia', confirmText: 'Konfirmasi', group: 'I'},
-  {code: 'it', name: 'Italiano', confirmText: 'Conferma', group: 'I'},
-  {code: 'ja', name: '日本語', confirmText: '確認', group: 'J'},
-  {code: 'ko', name: '한국어', confirmText: '확인', group: 'K'},
-  {code: 'ms', name: 'Bahasa Melayu', confirmText: 'Sahkan', group: 'M'},
-  {code: 'pl', name: 'Polski', confirmText: 'Potwierdź', group: 'P'},
-  {code: 'pt', name: 'Português', confirmText: 'Confirmar', group: 'P'},
-  {code: 'ru', name: 'Русский', confirmText: 'Подтвердить', group: 'R'},
-  {code: 'es', name: 'Español', confirmText: 'Confirmar', group: 'E'},
-  {code: 'th', name: 'ไทย', confirmText: 'ยืนยัน', group: 'T'},
-  {code: 'tr', name: 'Türkçe', confirmText: 'Onayla', group: 'T'},
-  {code: 'vi', name: 'Tiếng Việt', confirmText: 'Xác nhận', group: 'V'},
+// 语言列表
+const LANGUAGES: Language[] = [
+  {code: 'en', name: 'English', confirmText: 'Confirm'},
+  {code: 'ja', name: '日本語', confirmText: '確認'},
+  {code: 'zh', name: '简体中文', confirmText: '确定'},
+  {code: 'ko', name: '한국어', confirmText: '확인'},
+  {code: 'fr', name: 'Français', confirmText: 'Confirmer'},
+  {code: 'de', name: 'Deutsch', confirmText: 'Bestätigen'},
+  {code: 'es', name: 'Español', confirmText: 'Confirmar'},
+  {code: 'ru', name: 'Русский', confirmText: 'Подтвердить'},
+  {code: 'pt', name: 'Português', confirmText: 'Confirmar'},
+  {code: 'it', name: 'Italiano', confirmText: 'Conferma'},
+  {code: 'vi', name: 'Tiếng Việt', confirmText: 'Xác nhận'},
+  {code: 'th', name: 'ไทย', confirmText: 'ยืนยัน'},
+  {code: 'ar', name: 'العربية', confirmText: 'تأكيد'},
+  {code: 'hi', name: 'हिन्दी', confirmText: 'पुष्टि करें'},
+  {code: 'id', name: 'Bahasa Indonesia', confirmText: 'Konfirmasi'},
 ];
 
 type Props = {
@@ -55,41 +40,19 @@ type Props = {
 };
 
 const LanguageSelectionScreen: React.FC<Props> = ({onLanguageSelected}) => {
-  const [selectedLanguage, setSelectedLanguage] = useState(ALL_LANGUAGES[2]); // 默认选中简体中文
+  const [selectedLanguage, setSelectedLanguage] = useState(LANGUAGES[2]); // 默认选中简体中文
   const [searchText, setSearchText] = useState('');
   const insets = useSafeAreaInsets();
-  const sectionListRef = useRef<SectionList<Language>>(null);
 
-  // 按字母分组并过滤语言
-  const getSectionData = (): Section[] => {
-    const filteredLanguages = ALL_LANGUAGES.filter(
+  // 过滤语言
+  const getFilteredLanguages = () => {
+    if (!searchText) return LANGUAGES;
+    return LANGUAGES.filter(
       lang =>
         lang.name.toLowerCase().includes(searchText.toLowerCase()) ||
         lang.code.toLowerCase().includes(searchText.toLowerCase()),
     );
-
-    const groups = filteredLanguages.reduce((acc, lang) => {
-      const group = acc.find(g => g.title === lang.group);
-      if (group) {
-        group.data.push(lang);
-      } else {
-        acc.push({title: lang.group, data: [lang]});
-      }
-      return acc;
-    }, [] as Section[]);
-
-    return groups.sort((a, b) => a.title.localeCompare(b.title));
   };
-
-  const renderSectionHeader = ({
-    section,
-  }: {
-    section: SectionListData<Language>;
-  }) => (
-    <View style={styles.sectionHeader}>
-      <Text style={styles.sectionHeaderText}>{section.title}</Text>
-    </View>
-  );
 
   const renderItem = ({item}: {item: Language}) => (
     <TouchableOpacity
@@ -139,14 +102,11 @@ const LanguageSelectionScreen: React.FC<Props> = ({onLanguageSelected}) => {
       </View>
 
       {/* 语言列表 */}
-      <SectionList
-        ref={sectionListRef}
-        sections={getSectionData()}
+      <FlatList
+        data={getFilteredLanguages()}
         renderItem={renderItem}
-        renderSectionHeader={renderSectionHeader}
         keyExtractor={item => item.code}
         showsVerticalScrollIndicator={false}
-        stickySectionHeadersEnabled={false}
         contentContainerStyle={[
           styles.listContent,
           {
@@ -171,12 +131,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   logoContainer: {
-    height: 120,
+    height: 100,
     justifyContent: 'center',
     alignItems: 'center',
   },
   logoText: {
-    fontSize: 48,
+    fontSize: 36,
     fontWeight: 'bold',
     color: '#000000',
   },
@@ -202,15 +162,6 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: 16,
-  },
-  sectionHeader: {
-    paddingVertical: 8,
-    backgroundColor: '#FFFFFF',
-  },
-  sectionHeaderText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#999999',
   },
   languageItem: {
     height: 56,

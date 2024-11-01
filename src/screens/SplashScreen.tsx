@@ -1,26 +1,22 @@
 import React, {useEffect} from 'react';
-import {Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
-// SplashScreen组件：展示应用Logo的欢迎页面
-interface SplashScreenProps {
+type Props = {
   onComplete: () => void;
-}
+};
 
-const SplashScreen: React.FC<SplashScreenProps> = ({onComplete}) => {
+const SplashScreen: React.FC<Props> = ({onComplete}) => {
   useEffect(() => {
-    // 1.5秒后触发完成回调
-    const timer = setTimeout(() => {
-      onComplete();
-    }, 1500);
-
-    // 清理定时器
+    const timer = setTimeout(onComplete, 1500);
     return () => clearTimeout(timer);
   }, [onComplete]);
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.logo}>Echo</Text>
+      <View style={styles.content}>
+        <Text style={styles.logo}>Echo</Text>
+      </View>
     </SafeAreaView>
   );
 };
@@ -29,11 +25,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+  },
+  content: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
   logo: {
-    fontSize: 36,
+    fontSize: 72,
     fontWeight: 'bold',
     color: '#000000',
   },
