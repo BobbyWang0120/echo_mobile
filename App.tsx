@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {MenuProvider} from 'react-native-popup-menu';
 import {enableScreens} from 'react-native-screens';
+import {authManager} from './src/utils/auth';
 
 import SplashScreen from './src/screens/SplashScreen';
 import LanguageSelectionScreen from './src/screens/LanguageSelectionScreen';
@@ -87,14 +88,21 @@ const MainStack = () => {
     checkFirstLaunch();
   }, []);
 
+  // 监听登录状态变化
+  useEffect(() => {
+    const unsubscribe = authManager.addListener(setIsLoggedIn);
+    authManager.isLoggedIn().then(setIsLoggedIn);
+    return unsubscribe;
+  }, []);
+
   const checkFirstLaunch = async () => {
     try {
       const [firstLaunch, loggedIn] = await Promise.all([
         AsyncStorage.getItem('isFirstLaunch'),
-        AsyncStorage.getItem('isLoggedIn'),
+        authManager.isLoggedIn(),
       ]);
       setIsFirstLaunch(firstLaunch === null);
-      setIsLoggedIn(loggedIn === 'true');
+      setIsLoggedIn(loggedIn);
     } catch (error) {
       console.error('检查启动状态时出错:', error);
       setIsFirstLaunch(true);
@@ -137,19 +145,13 @@ const MainStack = () => {
             />
           )}
         </Stack.Screen>
-      ) : !isLoggedIn ? (
-        <>
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Verification" component={VerificationScreen} />
-        </>
-      ) : (
+      ) : isLoggedIn ? (
         <>
           <Stack.Screen name="Main" component={MainApp} />
           <Stack.Screen
             name="CreateMeeting"
             component={CreateMeetingScreen}
             options={{
-              headerShown: false,
               presentation: 'modal',
             }}
           />
@@ -157,7 +159,6 @@ const MainStack = () => {
             name="JoinMeeting"
             component={JoinMeetingScreen}
             options={{
-              headerShown: false,
               presentation: 'modal',
             }}
           />
@@ -165,8 +166,24 @@ const MainStack = () => {
             name="MeetingRoom"
             component={MeetingRoomScreen}
             options={{
-              headerShown: false,
               presentation: 'fullScreenModal',
+              animation: 'slide_from_right',
+            }}
+          />
+        </>
+      ) : (
+        <>
+          <Stack.Screen 
+            name="Login" 
+            component={LoginScreen}
+            options={{
+              animation: 'fade',
+            }}
+          />
+          <Stack.Screen 
+            name="Verification" 
+            component={VerificationScreen}
+            options={{
               animation: 'slide_from_right',
             }}
           />

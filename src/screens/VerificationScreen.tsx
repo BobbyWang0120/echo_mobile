@@ -3,16 +3,16 @@ import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
+  TextInput,
   Keyboard,
   NativeSyntheticEvent,
   TextInputKeyPressEventData,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {authManager} from '../utils/auth';
 
 type RootStackParamList = {
   Main: undefined;
@@ -50,13 +50,7 @@ const VerificationScreen: React.FC<Props> = ({navigation, route}) => {
   // 处理验证成功
   const handleVerificationSuccess = async () => {
     try {
-      // 设置登录状态
-      await AsyncStorage.setItem('isLoggedIn', 'true');
-      // 导航到主页
-      navigation.reset({
-        index: 0,
-        routes: [{name: 'Main'}],
-      });
+      await authManager.setLoggedIn(true);
     } catch (error) {
       console.error('保存登录状态时出错:', error);
     }
@@ -102,65 +96,104 @@ const VerificationScreen: React.FC<Props> = ({navigation, route}) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* 返回按钮 */}
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}>
-        <Icon name="arrow-back" size={24} color="#000000" />
-      </TouchableOpacity>
-
-      {/* 手机号显示 */}
-      <View style={styles.phoneContainer}>
-        <Text style={styles.phoneLabel}>验证码已发送至</Text>
-        <Text style={styles.phoneNumber}>
-          {countryCode} {phoneNumber}
-        </Text>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      <View style={styles.headerContainer}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}>
+            <Icon name="arrow-back" size={24} color="#000000" />
+          </TouchableOpacity>
+          <View style={styles.headerInfo}>
+            <Text style={styles.meetingName} numberOfLines={1}>
+              验证手机号
+            </Text>
+          </View>
+        </View>
       </View>
 
-      {/* 验证码输入框 */}
-      <View style={styles.codeContainer}>
-        {code.map((digit, index) => (
-          <TextInput
-            key={index}
-            ref={el => {
-              if (el) inputs.current[index] = el;
-            }}
-            style={styles.codeInput}
-            value={digit}
-            onChangeText={text => handleCodeChange(text, index)}
-            onKeyPress={e => handleKeyPress(e, index)}
-            keyboardType="number-pad"
-            maxLength={1}
-            selectTextOnFocus
-          />
-        ))}
-      </View>
+      <View style={styles.content}>
+        {/* 手机号显示 */}
+        <View style={styles.phoneContainer}>
+          <Text style={styles.phoneLabel}>验证码已发送至</Text>
+          <Text style={styles.phoneNumber}>
+            {countryCode} {phoneNumber}
+          </Text>
+        </View>
 
-      {/* 重发按钮 */}
-      <TouchableOpacity
-        style={[styles.resendButton, countdown > 0 && styles.resendButtonDisabled]}
-        onPress={handleResend}
-        disabled={countdown > 0}>
-        <Text
-          style={[
-            styles.resendButtonText,
-            countdown > 0 && styles.resendButtonTextDisabled,
-          ]}>
-          {countdown > 0 ? `${countdown}秒后重新发送` : '重新发送验证码'}
-        </Text>
-      </TouchableOpacity>
+        {/* 验证码输入框 */}
+        <View style={styles.codeContainer}>
+          {code.map((digit, index) => (
+            <TextInput
+              key={index}
+              ref={el => {
+                if (el) inputs.current[index] = el;
+              }}
+              style={styles.codeInput}
+              value={digit}
+              onChangeText={text => handleCodeChange(text, index)}
+              onKeyPress={e => handleKeyPress(e, index)}
+              keyboardType="number-pad"
+              maxLength={1}
+              selectTextOnFocus
+            />
+          ))}
+        </View>
+
+        {/* 重发按钮 */}
+        <TouchableOpacity
+          style={[styles.resendButton, countdown > 0 && styles.resendButtonDisabled]}
+          onPress={handleResend}
+          disabled={countdown > 0}>
+          <Text
+            style={[
+              styles.resendButtonText,
+              countdown > 0 && styles.resendButtonTextDisabled,
+            ]}>
+            {countdown > 0 ? `${countdown}秒后重新发送` : '重新发送验证码'}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
+  headerContainer: {
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#EEEEEE',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 56,
+    paddingHorizontal: 16,
+    backgroundColor: '#FFFFFF',
+  },
   backButton: {
-    padding: 16,
+    padding: 4,
+    marginRight: 8,
+  },
+  headerInfo: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 44, // 为了保持标题居中
+  },
+  meetingName: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000000',
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 20,
   },
   phoneContainer: {
     alignItems: 'center',
